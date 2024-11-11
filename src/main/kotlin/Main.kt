@@ -97,7 +97,16 @@ const val V2_DRIVE_ID = "0AO5ageEAi854Uk9PVA"
 // We wouldn't hard code the following, rather we would search for it using the above functions
 const val ARCHIVE_ID = "16DyU1zZSrxuJPchwC2_roOXMk9pNZAmG"
 
+// Choose a file to upload
+const val SAMPLE_UPLOAD_FILE_PATH = "/tmp/temp.txt"
+
 fun main() {
+    // WARNING - before running, you need to execute the following
+    // gcloud auth login --enable-gdrive-access --update-adc
+    // Note the gdrive flag
+
+    // Uncomment the following to demo a database-less solution to storing metadata.
+    // It loops forever to demo the caching that the GCS API is doing
 //    println(measureTimeMillis {
 //        while(true) {
 //            val fileNames = getFileNames("jezzas-test")
@@ -111,19 +120,21 @@ fun main() {
 
     println("Searching for shared drives")
     val sharedDrives = getSharedDrives(driveService)
-    println("These shared drives are visible: ${sharedDrives.map { it.value}}")
+    println("These shared drives are visible: ${sharedDrives.map { it.value }}")
 
     println("Look for folders in 'V2 - General' matching Jezza")
     val folders = getFiles(
         driveService = driveService,
         driveId = V2_DRIVE_ID,
-        q = "$FOLDER_MIME_TYPE and name contains 'Jezza'")
+        q = "$FOLDER_MIME_TYPE and name contains 'Jezza'"
+    )
     println("Matching folders are ${folders}")
 
     // Just take the first one for this spike
     val folderId = folders[0]["id"] as String? ?: throw Error("Couldn't find folder matching 'Jezza'")
 
-    val file = java.io.File("/Users/jezza/Desktop/temp.txt")
+
+    val file = java.io.File(SAMPLE_UPLOAD_FILE_PATH)
 
     // Is there already a file in this folder with the same name?
     val existingFiles = getFiles(
